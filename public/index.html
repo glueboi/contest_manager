@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contest Manager</title>
+</head>
+<body>
+    <h1>Contests</h1>
+    <ul id="contest-list"></ul>
+
+    <script>
+        fetch('/api/contests')
+            .then(res => res.json())
+            .then(contests => {
+                const list = document.getElementById('contest-list');
+                contests.forEach(c => {
+                    const li = document.createElement('li');
+                    li.textContent = `${c.title} | ${c.start_time} - ${c.end_time}`;
+                    list.appendChild(li);
+                });
+            });
+    </script>
+</body>
+</html>
