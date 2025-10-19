@@ -2,22 +2,54 @@
 <html>
 <head>
     <title>Contest Manager</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Contests</h1>
-    <ul id="contest-list"></ul>
+    <div class="container">
+        <h1>Upcoming Contests</h1>
+        <ul id="contest-list"></ul>
+
+        <h2>Add Contest (Admin)</h2>
+        <form id="contest-form">
+            <input type="text" name="title" placeholder="Contest Title" required>
+            <input type="datetime-local" name="start_time" required>
+            <input type="datetime-local" name="end_time" required>
+            <input type="text" name="description" placeholder="Description">
+            <button type="submit">Add Contest</button>
+        </form>
+    </div>
 
     <script>
-        fetch('/api/contests')
-            .then(res => res.json())
-            .then(contests => {
-                const list = document.getElementById('contest-list');
-                contests.forEach(c => {
-                    const li = document.createElement('li');
-                    li.textContent = `${c.title} | ${c.start_time} - ${c.end_time}`;
-                    list.appendChild(li);
-                });
+        const list = document.getElementById('contest-list');
+        const form = document.getElementById('contest-form');
+
+        // Fetch contests from backend
+        async function loadContests() {
+            const res = await fetch('/api/contests');
+            const contests = await res.json();
+            list.innerHTML = '';
+            contests.forEach(c => {
+                const li = document.createElement('li');
+                li.innerHTML = `<b>${c.title}</b> | ${c.start_time} - ${c.end_time} <br>${c.description}`;
+                list.appendChild(li);
             });
+        }
+
+        loadContests();
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            await fetch('/api/contests', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(data)
+            });
+            form.reset();
+            loadContests(); // refresh list
+        });
     </script>
 </body>
 </html>
